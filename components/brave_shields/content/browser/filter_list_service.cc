@@ -119,6 +119,17 @@ void FilterListService::UpdateCustomFilters(
 }
 
 void FilterListService::UpdateFilterLists(UpdateFilterListsCallback callback) {
+  // Custom list subscriptions are not components, so refresh them separately.
+  auto* subscription_service_manager =
+      ad_block_service_->subscription_service_manager();
+  for (const auto& subscription :
+       subscription_service_manager->GetSubscriptions()) {
+    if (subscription.enabled) {
+      subscription_service_manager->RefreshSubscription(
+          subscription.subscription_url, true);
+    }
+  }
+
   ad_block_service_->component_service_manager()->UpdateFilterLists(
       std::move(callback));
 }
